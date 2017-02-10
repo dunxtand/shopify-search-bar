@@ -1,0 +1,33 @@
+{% layout none %}
+
+{% comment %}
+	magic_key is a random unique string that allows you to split the json it is used as a delimiting char.
+  Liquid templating engine only allows array creation through splitting strings by a delimiter.
+{% endcomment %}
+
+{% assign magic_key = 'EVPuhvyqpYPohElOVr4G' %}
+
+{% capture results %}
+  {% for product in search.results %}
+
+    {{ magic_key }}
+    {
+      "id"     : {{ product.id          | json }},
+      "title"  : {{ product.title       | json }},
+      "desc"   : {{ product.description | json }}
+      "handle" : {{ product.handle      | json }},
+      "price"  : {{ product.price       | json }},
+	    "image"  : {{ product.image       | json }},
+      "url"    : {{ product.url         | json }}
+    }
+
+  {% endfor %}
+{% endcapture %}
+
+{% assign results = results | remove_first: magic_key | strip | split: magic_key %}
+
+{
+  "results": [
+    {{ results | join:',' }}
+  ]
+}

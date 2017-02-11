@@ -118,7 +118,11 @@ And the resultant object has the methods:
 * **form** (returns a jQuery object that shows you the 'form' element you're using)
 * **input** (returns a jQuery object that shows you the 'input' element you're using)
 
-**Call #init on the searchBar instance to start up all the components.**
+**Call #init on the searchBar instance to start up the search functionality:**
+
+```javascript
+bar.init();
+```
 
 ### Examples
 

@@ -16,15 +16,16 @@ var searchResults = (function ($, window, document, undefined) {
       displaySearchFailure: displaySearchFailure,
       displayNoResults: displayNoResults
     };
-    var that;
+    var _this;
 
     function displayResults (data) {
-      // results should be an array of objects
-      if (data.length < 1) {
-        that.displayNoResults();
+      // data.results should be an array of objects
+      // with at least 'title' and 'url' properties
+      if (data.results.length < 1) {
+        _this.displayNoResults();
       }
       else {
-        data.results.forEach(that.displayItem)
+        data.results.forEach(_this.displayItem)
       }
     }
 
@@ -53,8 +54,8 @@ var searchResults = (function ($, window, document, undefined) {
       }
     }
 
-    that = Object.create(parent);
-    return that;
+    _this = Object.create(parent);
+    return _this;
   }
 
   function checkArgs (selectors, messages) {

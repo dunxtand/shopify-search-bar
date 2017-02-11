@@ -1,8 +1,5 @@
 "use strict";
 
-// a file like this should be included
-// in the relevant template/snippet for your site.
-
 $(function () {
   var resultsSelectors, resultsMessages, results;
   var apiUrlOpts, apiCallbacks, api;

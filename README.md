@@ -35,14 +35,14 @@ var selectors = {
   container: "#example-search-results",
   loadDisplay: "#example-search-load"
 }
-var resultsMessages = {
+var messages = {
   searchFailure: "Sorry, something went wrong.",
   searchFailureClass: "example-search-failure",
   noResults: "No results were found.",
   noResultsClass: "example-search-noresults"
 }
 
-var results = searchResults.new(resultsSelectors, resultsMessages);
+var results = searchResults.new(selectors, messages);
 ```
 
 And the resultant object is configured with the methods:

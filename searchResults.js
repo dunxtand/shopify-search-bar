@@ -1,7 +1,6 @@
 "use strict";
 
 var searchResults = (function ($, window, document, undefined) {
-<<<<<<< HEAD
   function initializeObject (selectors, messages) {
     var container   = $(selectors.container),
         loadDisplay = $(selectors.loadDisplay);

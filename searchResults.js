@@ -1,6 +1,7 @@
 "use strict";
 
 var searchResults = (function ($, window, document, undefined) {
+<<<<<<< HEAD
   function initializeObject (selectors, messages) {
     var container   = $(selectors.container),
         loadDisplay = $(selectors.loadDisplay);
@@ -20,7 +21,7 @@ var searchResults = (function ($, window, document, undefined) {
         loadDisplay.toggle();
       },
       displayResults: function (data) {
-        // expect data to have 'results' array property
+        // expect 'data' to have 'results' array property
         if (data.results.length < 1) {
           _this.displayNoResults();
         } else {

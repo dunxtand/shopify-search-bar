@@ -48,6 +48,7 @@ var results = searchResults.new(resultsSelectors, resultsMessages);
 And the resultant object is configured with the methods:
 * **clear** (empties the container)
 * **toggleLoadDisplay** (hides and shows the loading display)
+* **displayItems** (checks the length of 'results' array property of its only argument, and either calls 'displayNoResults', or calls 'displayItem' on each object in the array)
 * **displayNoResults** (displays a message to inform the users that no matches could be found)
 * **displayItem** (configures an individual result and displays it in the results container)
 * **displayResults** (checks results length and either calls displayNoResults, or calls displayItem on each result)

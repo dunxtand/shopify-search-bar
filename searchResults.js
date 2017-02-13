@@ -1,60 +1,45 @@
 "use strict";
 
 var searchResults = (function ($, window, document, undefined) {
-  function configureObject (selectors, messages) {
-    var container            = $(selectors.container),
-        loadDisplay          = $(selectors.loadDisplay);
-    var noResultsMessage     = messages.noResults,
-        noResultsClass       = messages.noResultsClass;
-    var searchFailureMessage = messages.searchFailure,
-        searchFailureClass   = messages.searchFailureClass;
-    var parent = {
-      clear: function () { container.empty(); },
-      toggleLoadDisplay: toggleLoadDisplay,
-      displayResults: displayResults,
-      displayItem: displayItem,
-      displaySearchFailure: displaySearchFailure,
-      displayNoResults: displayNoResults
-    };
-    var that;
+  function initializeObject (selectors, messages) {
+    var container   = $(selectors.container),
+        loadDisplay = $(selectors.loadDisplay);
 
-    function displayResults (data) {
-      // results should be an array of objects
-      if (data.length < 1) {
-        that.displayNoResults();
-      }
-      else {
-        data.results.forEach(that.displayItem)
+    function createMessageAdder (message, messageClass) {
+      return function () {
+        var msg = $("<p></p>").addClass(messageClass).text(message);
+        container.append(msg);
       }
     }
 
-    function displayItem (item) {
-      var link = $("<a></a>").attr("href", item.url).text(item.title)
-      var p = $("<p></p>").append(link)
-      container.append(p)
-    }
+    var _this = Object.create({
+      clear: function () {
+        container.empty();
+      },
+      toggleLoadDisplay: function () {
+        loadDisplay.toggle();
+      },
+      displayResults: function (data) {
+        // expect data to have 'results' array property
+        if (data.results.length < 1) {
+          _this.displayNoResults();
+        } else {
+          _this.displayItems(data.results);
+        }
+      },
+      displayItems: function (items) {
+        items.forEach(_this.displayItem);
+      },
+      displayItem: function (item) {
+        var link = $("<a></a>").attr("href", item.url).text(item.title)
+        var p = $("<p></p>").append(link)
+        container.append(p)
+      },
+      displaySearchFailure: createMessageAdder(messages.searchFailure, messages.searchFailureClass),
+      displayNoResults: createMessageAdder(messages.noResults, messages.noResultsClass)
+    });
 
-    function displayNoResults () {
-      var message = $("<p></p>").addClass(noResultsClass).text(noResultsMessage)
-      container.append(message)
-    }
-
-    function displaySearchFailure () {
-      var message = $("<p></p>").addClass(searchFailureClass).text(searchFailureMessage)
-      container.append(message)
-    }
-
-    function toggleLoadDisplay () {
-      if (loadDisplay.is(":hidden")) {
-        loadDisplay.show();
-      }
-      else if (loadDisplay.is(":visible")) {
-        loadDisplay.hide();
-      }
-    }
-
-    that = Object.create(parent);
-    return that;
+    return _this;
   }
 
   function checkArgs (selectors, messages) {
@@ -75,7 +60,7 @@ var searchResults = (function ($, window, document, undefined) {
   return {
     new: function (selectors, messages) {
       checkArgs(selectors, messages);
-      return configureObject(selectors, messages);
+      return initializeObject(selectors, messages);
     }
   }
 })(jQuery, window, document);

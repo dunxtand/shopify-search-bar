@@ -16,6 +16,14 @@ They are:
 
 The three are meant to be used together, but they can also be taken in isolation for other purposes.
 
+### Inclusion
+
+Grab the script in **build/sjs.min.js** and include it on your site, customize your endpoint, and write your initialization script.
+
+### Examples
+
+Check example/init.js for an example of how to connect all the components and start up the functionality, and example/search.example.liquid for an example of how to configure a custom Shopify search endpoint.
+
 ##
 
 ### searchResults
@@ -127,7 +135,3 @@ And the resultant object has the methods:
 ```javascript
 bar.init();
 ```
-
-### Examples
-
-Check exampleConnection.js for an example of how to connect all the components, and check search.example.liquid for an example of how to configure a custom Shopify search endpoint.

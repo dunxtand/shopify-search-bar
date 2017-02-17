@@ -1,7 +1,5 @@
 # Shopify jQuery Search Components
 
-##
-
 ### Requirements
 
 These components are dependent on jQuery being enabled on a Shopify storefront.
@@ -18,6 +16,7 @@ They are:
 
 The three are meant to be used together, but they can also be taken in isolation for other purposes.
 
+##
 
 ### searchResults
 
@@ -55,6 +54,8 @@ And the resultant object is configured with the methods:
 * **displaySearchFailure** (displays a message if the AJAX request fails)
 
 ...any of which may be overridden with a custom function.
+
+##
 
 ### searchAPI
 
@@ -94,6 +95,8 @@ And the resultant object has the methods:
 * **search** (takes a query string, sends a request to an endpoint, and executes callbacks in the lifecycle of the request)
 * **url** (returns a sample version of the requested endpoint)
 * **callbacks** (returns an object that shows which functions are attributed to which request lifecycle methods)
+
+##
 
 ### searchBar
 

@@ -1,137 +1,155 @@
-# Shopify jQuery Search Components
-
-### Requirements
-
-These components are dependent on jQuery being enabled on a Shopify storefront.
+# Shopify Search Bar
 
 ### Summary
 
-These are three components that enabled quicker development of custom search functionality in a Shopify storefront.
+A JavaScript module (and Liquid JSON file) that lets you quickly build out search functionality on a Shopify storefront.
 
-They are:
+### Motivation
 
-* a 'results' component that correponds to the elements in which your search results will be rendered.
-* an 'api' component that takes a query and calls the appropriate callback functions from the 'results' component
-* a 'bar' component that connects a form element to the 'api' component
+There are plenty of apps on the [Shopify App Store](https://apps.shopify.com/), but not many of them are very customizable. This module just takes care of the searching and appending, and lets you define your own behavior during the lifecycle of the request via JS callbacks.
 
-The three are meant to be used together, but they can also be taken in isolation for other purposes.
+### Installation
 
-### Inclusion
+Copy ssb.min.js straight into a script tag, or to a file on your site and reference it:
 
-Grab the script in **build/sjs.min.js** and include it on your site, customize your endpoint, and write your initialization script.
+````html
+<script src="path/to/ssb.min.js"></script>
+````
 
-### Examples
+Or install via npm and require **(This will *only* work if you bundle the code and execute on the client; will not run server-side)**:
 
-Check example/init.js for an example of how to connect all the components and start up the functionality, and example/search.example.liquid for an example of how to configure a custom Shopify search endpoint.
+````bash
+npm install shopify-search-bar
+````
 
-##
+````javascript
+require("shopify-search-bar");
+````
 
-### searchResults
+### Configuration Requirements
 
-This is object has only one method, #new, which returns an object with a set of customized callback methods.
+1. You must make a **liquid search template** that returns an object with at least a **results** property that contains an array. Feel free to copy the example and customize what kind of info you get about the returned items. Check Shopify's [documentation](https://help.shopify.com/themes/liquid/objects/search#search-results) for more about returned items.
+2. The **input** element you set as your search bar must be within a **form** element, and must be of type="**text**".
 
-The #new method takes two arguments:
+## Usage
 
-* an object with properties **container** and **loadDisplay**, which contain selectors for the results container and the interim load display
-* an object with properties **searchFailure**, **searchFailureClass**, **noResults**, and **noResultsClass**, which contain error messages and the classes to be set on the elements they appear within
+Select the **input** element that will collect the search term, and call the **#shopifySearchBar** method on it, passing in the urlOpts and containerId args:
 
-These objects are passed into #new:
+````javascript
+var urlOpts = {view: "example", type: "product"};
+var containerId = "search-container";
+var input = document.getElementById("search-bar");
+input.shopifySearchBar(urlOpts, containerId);
+````
 
-```javascript
-var selectors = {
-  container: "#example-search-results",
-  loadDisplay: "#example-search-load"
-}
-var messages = {
-  searchFailure: "Sorry, something went wrong.",
-  searchFailureClass: "example-search-failure",
-  noResults: "No results were found.",
-  noResultsClass: "example-search-noresults"
-}
+##### urlOpts (object)
 
-var results = searchResults.new(selectors, messages);
-```
+* Must have a "**view**" property. This specifies the Liquid template to query; if this is set to "**example**", your search will query **search.example.liquid**.
+* Optionally can have a "**type**" property. This restricts the search to only that type of Shopify object. Options are ["**page**"](https://help.shopify.com/themes/liquid/objects/page), ["**product**"](https://help.shopify.com/themes/liquid/objects/product), and [**article**](https://help.shopify.com/themes/liquid/objects/article).
 
-And the resultant object is configured with the methods:
-* **clear** (empties the container)
-* **toggleLoadDisplay** (hides and shows the loading display)
-* **displayItems** (checks the length of 'results' array property of its only argument, and either calls 'displayNoResults', or calls 'displayItem' on each object in the array)
-* **displayNoResults** (displays a message to inform the users that no matches could be found)
-* **displayItem** (configures an individual result and displays it in the results container)
-* **displayResults** (checks results length and either calls displayNoResults, or calls displayItem on each result)
-* **displaySearchFailure** (displays a message if the AJAX request fails)
+##### containerId (string)
 
-...any of which may be overridden with a custom function.
+* Must be the **id** of the element into which your search will be appended, without the "#" at the front.
 
-##
+That's all you need to get the default behavior going.
 
-### searchAPI
+## Defaults
 
-This object has only one method, #new, which returns an object used to query a JSON endpoint on a Shopify storefront.
+As is, each time a search is performed:
 
-The #new method takes two arguments:
+* if there are results, they will be appended into the container in the format:
+  ````html
+  <div class="ssb-item">
+    <a href="/path/to/item">Item Title</a>
+  </div>
+  ````
+* if there are no results, this p tag will be appended to the container:
+  ````html
+  <p class="ssb-failure">
+    No results were found.
+  </p>
+  ````
+* if something went wrong with the request, this p tag will be appended to the container:
+  ````html
+  <p class="ssb-failure">
+    Sorry, something went wrong.
+  </p>
+  ````
 
-* an object with properties **view** and **product**, which are used to configure the url endpoint to be requested.
-* an object specificying which callbacks should be used in the life cycle of the request:
-    * **before** (called before each request begins)
-    * **handleSuccess** (called on the data returned from a successful request)
-    * **handleFailure** (called in the event of a request failure)
-    * **then** (called after handleSuccess in the event of a successful request)
-    * **done** (called after the request has either failed or succeeded)
-    * **always** (same functionality as 'done')
+The container will be cleared of all elements before each new request.
 
-These callbacks correspond to a number of available callbacks on a [jQuery Deferred Object](https://api.jquery.com/category/deferred-object/).
+## Customization
 
-These objects are passed into #new:
+Any of these methods can be called on the **input** element you set as your search bar. You have to initialize the element, as shown above, to use any of these.
 
-```javascript
-var urlOpts = {
-  view: "example",
-  type: "product"
-}
-var callbacks = {
-  handleSuccess: results.displayResults,
-  handleFailure: results.displaySearchFailure,
-  before: results.clear,
-  always: results.toggleLoadDisplay
-}
+#### #messages
 
-var api = searchAPI.new(urlOpts, callbacks);
-```
+Pass in an object with the error messages you want. The object can have properties **noResults** and **searchFailure**, which contain the relevant messages to display.
 
-And the resultant object has the methods:
-* **search** (takes a query string, sends a request to an endpoint, and executes callbacks in the lifecycle of the request)
-* **url** (returns a sample version of the requested endpoint)
-* **callbacks** (returns an object that shows which functions are attributed to which request lifecycle methods)
+````javascript
+input.messages({noResults: "Sorry, we couldn't find anything!", searchFailure: "Oh no, something's up."});
+````
 
-##
+#### #before
 
-### searchBar
+Pass in a function that will be always called before the request begins. The argument to this function is the results container.
 
-This object has only one method, #new, which returns an object that corresponds to the form used to take in a query.
+````javascript
+input.before(function (container) {
+  // do something here
+});
+````
 
-The #new method takes two arguments:
-* an object with properties **form** and **input**, which are selectors used to find the form and the query input field
-* a predefined **searchAPI** object, to be able to use its 'query' method
+#### #after
 
-These objects are passed into #new:
+Pass in a function that will be always called after the request has ended. The argument to this function is the results container.
 
-```javascript
-var selectors = {
-  form: ".site-search-form",
-  input: ".site-search-input"
-}
+````javascript
+input.before(function (container) {
+  // do something here
+});
+````
 
-var bar = searchBar.new(selectors, api);
-```
+#### #success
 
-And the resultant object has the methods:
-* **init** (used to officially connect the search bar to the rest of the functionality)
-* **form** (returns a jQuery object that shows you the 'form' element you're using)
-* **input** (returns a jQuery object that shows you the 'input' element you're using)
+Pass in a function that will only be called if the result succeeds. The arguments to this function are the results container and the XMLHttpRequest object used.
 
-**Call #init on the searchBar instance to start up the search functionality:**
+````javascript
+input.success(function (container, xhr) {
+  // do something here
+});
+````
 
-```javascript
-bar.init();
-```
+#### #failure
+
+Pass in a function that will only be called if the result fails. The arguments to this function are the results container and the XMLHttpRequest object used.
+
+````javascript
+input.failure(function (container, xhr) {
+  // do something here
+});
+````
+
+#### #displayItem
+
+Pass in a function that will be called on each item object in the returned "results" array. The argument to this function is the current item object.
+
+````javascript
+input.displayItem(function (item) {
+  // do something here
+});
+````
+
+#### #noResults
+
+Pass in a function that will be called in the event that there are no search results. The argument to this function is the results container.
+
+````javascript
+input.noResults(function (container) {
+  // do something here
+});
+````
+
+## License
+
+MIT

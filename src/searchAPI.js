@@ -21,7 +21,7 @@ var searchAPI = (function () {
 
   function createInvoke (results) {
     return function (fnName) {
-      !!results[fnName] && results[fnName]();
+      !!results[fnName] && results[fnName](arguments[1]);
     }
   }
 
@@ -35,7 +35,7 @@ var searchAPI = (function () {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
             var data = window.JSON.parse(xhr.responseText);
-            invoke("success");
+            invoke("success", xhr);
             results.displayResults(data);
             invoke("after");
           } else {

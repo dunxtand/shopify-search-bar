@@ -38,12 +38,13 @@ var protoMethod = (function () {
     function setNewAttributes () {
       var createSetCallback = bindToCreateSetCallback(input, results);
       input.messages = bindToSetMessages(input, results);
-      input.before = createSetCallback(names.before);
-      input.after = createSetCallback(names.after);
-      input.success = createSetCallback(names.success);
-      input.failure = createSetCallback(names.failure);
-      input.displayItem = createSetCallback(names.displayItem);
-      input.noResults = createSetCallback(names.noResults);
+      [
+        names.before, names.after, names.success,
+        names.failure, names.displayItem, names.noResults
+      ]
+      .forEach(function (name) {
+        input[name] = createSetCallback(name);
+      });
     }
 
     container = document.getElementById(containerId);

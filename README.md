@@ -6,7 +6,7 @@ A JavaScript module (and Liquid JSON file) that lets you quickly build out searc
 
 ### Motivation
 
-There are plenty of apps on the [Shopify App Store](https://apps.shopify.com/), but not many of them are very customizable. This module just takes care of the searching and appending, and lets you define your own behavior during the lifecycle of the request via JS callbacks.
+There are plenty of apps on the [Shopify App Store](https://apps.shopify.com/), but not many of them are very customizable. This module just takes care of the boilerplate JS and lets you define your own behavior if you like.
 
 ### Installation
 
@@ -28,7 +28,7 @@ require("shopify-search-bar");
 
 ### Configuration Requirements
 
-1. You must make a **liquid search template** that returns an object with at least a **results** property that contains an array. Each item in the array must at least have **title** and **url** properties. Copy the example and customize what kind of info you get about the returned items. Check Shopify's [documentation](https://help.shopify.com/themes/liquid/objects/search#search-results) for more about returned items.
+1. You must make a **liquid search template** that returns an object with at least a **results** property that contains an array. Each item in the array must at least have **title** and **url** properties. Copy the [example](https://github.com/dunxtand/shopify-jquery-search/blob/master/example/example.html) and customize what kind of info you get about the returned items. Check Shopify's [documentation](https://help.shopify.com/themes/liquid/objects/search#search-results) for more about returned items.
 2. The **input** element you set as your search bar must be within a **form** element, and must be of type="**text**".
 
 ## Usage
@@ -49,7 +49,7 @@ input.shopifySearchBar(urlOpts, containerId);
 
 ##### containerId (string)
 
-* Must be the **id** of the element into which your search will be appended, without the "#" at the front.
+* Must be the **id** of the element into which your search will be appended (i.e. a div), without the "#" at the front.
 
 That's all you need to get the default behavior going.
 
@@ -162,4 +162,4 @@ input.before(beforeFn).success(successFn).after(afterFn); // etc
 
 ## License
 
-MIT
+[MIT](https://opensource.org/licenses/MIT)

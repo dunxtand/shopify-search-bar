@@ -28,7 +28,7 @@ require("shopify-search-bar");
 
 ### Configuration Requirements
 
-1. You must make a **liquid search template** that returns an object with at least a **results** property that contains an array. Each item in the array must at least have **title** and **url** properties. Copy the [example](https://github.com/dunxtand/shopify-jquery-search/blob/master/example/example.html) and customize what kind of info you get about the returned items. Check Shopify's [documentation](https://help.shopify.com/themes/liquid/objects/search#search-results) for more about returned items.
+1. You must make a **liquid search template** that returns an object with at least a **results** property that contains an array. Each item in the array must at least have **title** and **url** properties. Copy the [example](https://github.com/dunxtand/shopify-jquery-search/blob/master/example/search.example.liquid) into your theme's [templates](https://help.shopify.com/themes/development/templates) (name it what you like), and customize what kind of info you get about the returned items. Check Shopify's [documentation](https://help.shopify.com/themes/liquid/objects/search#search-results) for more about returned items.
 2. The **input** element you set as your search bar must be within a **form** element, and must be of type="**text**".
 
 ## Usage
@@ -44,8 +44,8 @@ input.shopifySearchBar(urlOpts, containerId);
 
 ##### urlOpts (object)
 
-* Must have a "**view**" property. This specifies the Liquid template to query; if this is set to "**example**", your search will query **search.example.liquid**.
-* Optionally can have a "**type**" property. This restricts the search to only that type of Shopify object. Options are ["**page**"](https://help.shopify.com/themes/liquid/objects/page), ["**product**"](https://help.shopify.com/themes/liquid/objects/product), and [**article**](https://help.shopify.com/themes/liquid/objects/article).
+* Must have a "**view**" property. This specifies the Liquid template to query; if this is set to "**example**", your search will query **search.example.liquid**, if it is set to "**blog**", it will query **search.blog.liquid**, etc. 
+* Optionally can have a "**type**" property. This restricts the search to only that type of Shopify object. Options are ["**page**"](https://help.shopify.com/themes/liquid/objects/page), ["**product**"](https://help.shopify.com/themes/liquid/objects/product), and ["**article**""](https://help.shopify.com/themes/liquid/objects/article).
 
 ##### containerId (string)
 

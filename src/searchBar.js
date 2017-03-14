@@ -1,9 +1,18 @@
 "use strict";
 
-var searchBar = (function ($, window, document, undefined) {
-  function attachSubmitListener (selectors, api) {
-    var form  = $(selectors.form),
-        input = $(selectors.input);
+var searchBar = (function () {
+  function findParentForm (el) {
+    var node = el.get(0);
+    while (node) {
+      if (node.nodeName === "FORM") break;
+      node = node.parentNode;
+    }
+    return $(node);
+  }
+
+  function attachSubmitListener (input, api) {
+    var form = findParentForm(input);
+
     form.submit(function (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -12,25 +21,15 @@ var searchBar = (function ($, window, document, undefined) {
     })
   }
 
-  function checkArgs (selectors, api) {
-    if (!selectors || !api) {
-      throw new Error("You must provide 'selectors' and 'api' objects to the 'init' method");
-    }
-    if (!selectors.form || !selectors.input) {
-      throw new Error("You must provide 'form' and 'input' properties to the 'selectors' object");
-    }
-  }
-
   return {
-    new: function (selectors, api) {
-      checkArgs(selectors, api)
+    new: function (input, api) {
       return {
         init: function () {
-          attachSubmitListener(selectors, api)
-        },
-        form: $(selectors.form),
-        input: $(selectors.input)
+          attachSubmitListener(input, api)
+        }
       }
     }
   }
-})(jQuery, window, document);
+})();
+
+module.exports = searchBar;

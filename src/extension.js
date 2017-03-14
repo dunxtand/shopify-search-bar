@@ -48,7 +48,7 @@ var extension = (function () {
       });
     }
 
-    container = document.getElementById(containerId);
+    container = $(containerId);
     results = searchResults.new(container);
     api     = searchAPI.new(urlOpts, results);
     bar     = searchBar.new(input, api);
@@ -59,7 +59,7 @@ var extension = (function () {
 
   return {
     shopifySearchBar: function (urlOpts, containerId) {
-      checks(this, urlOpts, containerId);
+      checks(this.get(0), urlOpts, containerId);
       return createContext(this, urlOpts, containerId);
     }
   }

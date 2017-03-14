@@ -24,7 +24,7 @@ Copy ssb.min.js straight into a script tag, or to a file on your site and refere
 
 ### Configuration Requirements
 
-1. You must make a **liquid search template** that returns an object with at least a **results** property that contains an array. Each item in the array must at least have **title** and **url** properties. Copy the [example](https://github.com/dunxtand/shopify-jquery-search/blob/master/example/example.html) and customize what kind of info you get about the returned items. Check Shopify's [documentation](https://help.shopify.com/themes/liquid/objects/search#search-results) for more about returned items.
+1. You must make a **liquid search template** that returns an object with at least a **results** property that contains an array. Each item in the array must at least have **title** and **url** properties. Copy the [example](https://github.com/dunxtand/shopify-search-bar/blob/master/example/search.example.liquid) and customize what kind of info you get about the returned items. Check Shopify's [documentation](https://help.shopify.com/themes/liquid/objects/search#search-results) for more about returned items.
 2. The **input** element you set as your search bar must be within a **form** element, and must be of type="**text**".
 
 ## Usage
@@ -108,20 +108,20 @@ input.after(function (container) {
 
 #### #success
 
-Pass in a function that will only be called if the result succeeds. The arguments to this function are the results container and the XMLHttpRequest object used.
+Pass in a function that will only be called if the result succeeds. The arguments to this function are the results container and the response from the request.
 
 ````javascript
-input.success(function (container, xhr) {
+input.success(function (container, res) {
   // do something here
 });
 ````
 
 #### #failure
 
-Pass in a function that will only be called if the result fails. The arguments to this function are the results container and the XMLHttpRequest object used. *This overrides the default behavior for a request failure specified above.*
+Pass in a function that will only be called if the result fails. The arguments to this function are the results container and the response from the request. *This overrides the default behavior for a request failure specified above.*
 
 ````javascript
-input.failure(function (container, xhr) {
+input.failure(function (container, res) {
   // do something here
 });
 ````

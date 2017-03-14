@@ -1,27 +1,11 @@
 "use strict";
 
-var searchAPI = (function ($, window, document, undefined) {
-  function configureSearch (urlOpts, cb) {
-    return function (query) {
-      var url, request;
-      url = createUrl(urlOpts, query);
-      if (!!cb.before) { cb.before() }
-      request = $.getJSON(url, cb.handleSuccess);
-      attachCallbacks(request, cb);
-    }
-  }
-
-  function attachCallbacks (request, cb) {
-    if (!!cb.handleFailure) { request.fail(cb.handleFailure); }
-    if (!!cb.then)          { request.then(cb.then);          }
-    if (!!cb.done)          { request.done(cb.done);          }
-    if (!!cb.always)        { request.always(cb.always);      }
-  }
-
+var searchAPI = (function () {
   function createUrl (urlOpts, query) {
     var searchSegment = "/search?",
-        querySegment = "&q=" + query;
-    return window.location.origin + searchSegment + createUrlSegment(urlOpts) + querySegment;
+        querySegment = "&q=" + query,
+        allSegments = searchSegment + createUrlSegment(urlOpts) + querySegment;
+    return window.location.origin + allSegments;
   }
 
   function createUrlSegment (urlOpts) {
@@ -35,26 +19,53 @@ var searchAPI = (function ($, window, document, undefined) {
     return params.join("&");
   }
 
-  function checkCallbacks (callbacks) {
-    if (!callbacks) {
-      throw new Error("You must provide a 'callbacks' object to the 'new' method");
+  function createInvoke (results) {
+    return function (fnName) {
+      !!results[fnName] && results[fnName]();
     }
-    if (!callbacks.handleSuccess) {
-      throw new Error("You must define a 'handleSuccess' callback in the 'callbacks' object");
+  }
+
+  function initializeObject (urlOpts, results) {
+    var invoke = createInvoke(results);
+
+    function getJSON (url) {
+      var xhr = new window.XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.onreadystatechange = function (e) {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            var data = window.JSON.parse(xhr.responseText);
+            invoke("success");
+            results.displayResults(data);
+            invoke("after");
+          } else {
+            results.failure(xhr);
+            invoke("after");
+          }
+        }
+      }
+      xhr.onerror = function (e) {
+        results.failure(xhr);
+        invoke("after");
+      }
+      xhr.send();
     }
-    if (!callbacks.handleFailure) {
-      window.console.warn("You have not provided a 'handleFailure' method to the 'callbacks' object");
+
+    function search (query) {
+      var url = createUrl(urlOpts, query);
+      results.clear();
+      invoke("before");
+      getJSON(url);
+    }
+
+    return {
+      search: search,
     }
   }
 
   return {
-    new: function (urlOptions, callbacks) {
-      checkCallbacks(callbacks);
-      return {
-        search: configureSearch((urlOptions || {}), callbacks),
-        url: createUrl(urlOptions, "<YOUR_QUERY>"),
-        callbacks: callbacks
-      }
-    }
+    new: initializeObject
   }
-})(jQuery, window, document);
+})();
+
+module.exports = searchAPI;

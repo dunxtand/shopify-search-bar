@@ -13,7 +13,7 @@ There are plenty of apps on the [Shopify App Store](https://apps.shopify.com/), 
 Copy ssb.min.js straight into a script tag, or to a file on your site and reference it:
 
 ````html
-<script src="path/to/ssb.min.js"></script>
+<script src="/path/to/ssb.min.js"></script>
 ````
 
 Or install via npm and require **(This will *only* work if you bundle the code and execute on the client; will not run server-side)**:
@@ -28,7 +28,7 @@ require("shopify-search-bar");
 
 ### Configuration Requirements
 
-1. You must make a **liquid search template** that returns an object with at least a **results** property that contains an array. Feel free to copy the example and customize what kind of info you get about the returned items. Check Shopify's [documentation](https://help.shopify.com/themes/liquid/objects/search#search-results) for more about returned items.
+1. You must make a **liquid search template** that returns an object with at least a **results** property that contains an array. Each item in the array must at least have **title** and **url** properties. Copy the example and customize what kind of info you get about the returned items. Check Shopify's [documentation](https://help.shopify.com/themes/liquid/objects/search#search-results) for more about returned items.
 2. The **input** element you set as your search bar must be within a **form** element, and must be of type="**text**".
 
 ## Usage
@@ -59,9 +59,9 @@ As is, each time a search is performed:
 
 * if there are results, they will be appended into the container in the format:
   ````html
-  <div class="ssb-item">
+  <p class="ssb-item">
     <a href="/path/to/item">Item Title</a>
-  </div>
+  </p>
   ````
 * if there are no results, this p tag will be appended to the container:
   ````html
@@ -105,7 +105,7 @@ input.before(function (container) {
 Pass in a function that will be always called after the request has ended. The argument to this function is the results container.
 
 ````javascript
-input.before(function (container) {
+input.after(function (container) {
   // do something here
 });
 ````
@@ -122,7 +122,7 @@ input.success(function (container, xhr) {
 
 #### #failure
 
-Pass in a function that will only be called if the result fails. The arguments to this function are the results container and the XMLHttpRequest object used.
+Pass in a function that will only be called if the result fails. The arguments to this function are the results container and the XMLHttpRequest object used. *This overrides the default behavior for a request failure specified above.*
 
 ````javascript
 input.failure(function (container, xhr) {
@@ -133,6 +133,7 @@ input.failure(function (container, xhr) {
 #### #displayItem
 
 Pass in a function that will be called on each item object in the returned "results" array. The argument to this function is the current item object.
+*This overrides the default behavior for individual item appending specified above.*
 
 ````javascript
 input.displayItem(function (item) {
@@ -143,11 +144,20 @@ input.displayItem(function (item) {
 #### #noResults
 
 Pass in a function that will be called in the event that there are no search results. The argument to this function is the results container.
+*This overrides the default behavior for a a search with no results specified above.*
 
 ````javascript
 input.noResults(function (container) {
   // do something here
 });
+````
+
+#### Chaining
+
+All of the above methods can be called fluidly:
+
+````javascript
+input.before(beforeFn).success(successFn).after(afterFn); // etc
 ````
 
 ## License

@@ -1,24 +1,55 @@
 (function (window, document, undefined) {
   var searchResults = (function () {
     var defaultMessages = {
-      noResults: "No results were found",
-      searchFailure: "sorry, something went wrong."
+      noResults: "No results were found.",
+      searchFailure: "Sorry, something went wrong."
     };
-    function createElement (type, text) {
-      var el = document.createElement("type");
+    var classNames = {
+      failure: "ssb-failure",
+      item: "ssb-item"
+    };
+    function createElement (type, className, text) {
+      var el = document.createElement(type);
+      el.className = className;
       !!text && (el.textContent = text);
       return el;
     }
     function itemElement (item) {
-      var el = createElement("DIV");
+      var el = createElement("P", classNames.item);
       var linkStr = "<a href='" + item.url + "'>" + item.title + "</a>";
       el.innerHTML = linkStr;
       return el;
     }
 
     function initializeObject (container) {
-      var noResultsEl = createElement("P", defaultMessages.noResults);
-      var searchFailureEl = createElement("P", defaultMessages.searchFailure);
+      var noResultsEl = createElement("P", classNames.failure, defaultMessages.noResults),
+          searchFailureEl = createElement("P", classNames.failure, defaultMessages.searchFailure);
+
+      function setCallback (name, fn) {
+        if (name === "before" || name === "after" || name === "noResults") {
+          _this[name] = function () {
+            return fn.call(null, container);
+          }
+        }
+        else if (name === "success" || name === "failure") {
+          _this[name] = function (xhr) {
+            return fn.call(null, container, xhr);
+          }
+        }
+        else if (name === "displayItem") {
+          _this[name] = fn;
+        }
+      }
+
+      function setMessage (name, message) {
+        var el;
+        if (name === "noResults") {
+          el = noResultsEl;
+        } else if (name === "searchFailure") {
+          el = searchFailureEl;
+        }
+        el.textContent = message;
+      }
 
       var _this = window.Object.create({
         clear: function () {
@@ -26,7 +57,7 @@
         },
         displayResults: function (data) {
           if (data.results.length < 1) {
-            _this.displayNoResults();
+            _this.noResults();
           } else {
             _this.displayItems(data.results);
           }
@@ -37,12 +68,15 @@
         displayItem: function (item) {
           container.appendChild(itemElement(item));
         },
-        displaySearchFailure: function () {
+        failure: function (xhr) {
+          window.console.warn(xhr);
+          container.appendChild(searchFailureEl);
+        },
+        noResults: function () {
           container.appendChild(noResultsEl);
         },
-        displayNoResults: function () {
-          container.appendChild(searchFailureEl);
-        }
+        setCallback: setCallback,
+        setMessage: setMessage
       });
 
       return _this;
@@ -54,27 +88,11 @@
   })();
 
   var searchAPI = (function () {
-    function configureSearch (urlOpts, cb) {
-      return function (query) {
-        var url, request;
-        url = createUrl(urlOpts, query);
-        if (!!cb.before) { cb.before() }
-        request = $.getJSON(url, cb.handleSuccess);
-        attachCallbacks(request, cb);
-      }
-    }
-
-    function attachCallbacks (request, cb) {
-      if (!!cb.handleFailure) { request.fail(cb.handleFailure); }
-      if (!!cb.then)          { request.then(cb.then);          }
-      if (!!cb.done)          { request.done(cb.done);          }
-      if (!!cb.always)        { request.always(cb.always);      }
-    }
-
     function createUrl (urlOpts, query) {
       var searchSegment = "/search?",
-          querySegment = "&q=" + query;
-      return window.location.origin + searchSegment + createUrlSegment(urlOpts) + querySegment;
+          querySegment = "&q=" + query,
+          allSegments = searchSegment + createUrlSegment(urlOpts) + querySegment;
+      return window.location.origin + allSegments;
     }
 
     function createUrlSegment (urlOpts) {
@@ -88,37 +106,81 @@
       return params.join("&");
     }
 
-    return {
-      new: function (urlOptions, callbacks) {
-        return {
-          search: configureSearch((urlOptions || {}), callbacks),
-          url: createUrl(urlOptions, "<YOUR_QUERY>"),
-          callbacks: callbacks
-        }
+    function createInvoke (results) {
+      return function (fnName) {
+        !!results[fnName] && results[fnName]();
       }
+    }
+
+    function initializeObject (urlOpts, results) {
+      var invoke = createInvoke(results);
+
+      function getJSON (url) {
+        var xhr = new window.XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.onreadystatechange = function (e) {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              var data = window.JSON.parse(xhr.responseText);
+              invoke("success");
+              results.displayResults(data);
+              invoke("after");
+            } else {
+              results.failure(xhr);
+              invoke("after");
+            }
+          }
+        }
+        xhr.onerror = function (e) {
+          results.failure(xhr);
+          invoke("after");
+        }
+        xhr.send();
+      }
+
+      function search (query) {
+        var url = createUrl(urlOpts, query);
+        results.clear();
+        invoke("before");
+        getJSON(url);
+      }
+
+      return {
+        search: search,
+      }
+    }
+
+    return {
+      new: initializeObject
     }
   })();
 
   var searchBar = (function () {
-    function attachSubmitListener (selectors, api) {
-      var form  = $(selectors.form),
-          input = $(selectors.input);
-      form.submit(function (e) {
+    function findParentForm (el) {
+      var node = el;
+      while (node) {
+        if (node.nodeName === "FORM") break;
+        node = node.parentNode;
+      }
+      return node;
+    }
+
+    function attachSubmitListener (input, api) {
+      var form = findParentForm(input);
+      form.onsubmit = function (e) {
         e.preventDefault();
         e.stopPropagation();
-        var query = input.val();
+        var query = input.value;
         api.search(query);
-      })
+      }
     }
 
     return {
-      new: function (selectors, api) {
+      new: function (input, api) {
         return {
           init: function () {
-            attachSubmitListener(selectors, api)
-          },
-          form: $(selectors.form),
-          input: $(selectors.input)
+            attachSubmitListener(input, api);
+          }
         }
       }
     }
@@ -176,7 +238,6 @@
   })();
 
   var protoMethod = (function () {
-    var container, results, api, bar;
     var names = {
       before: "before",
       after: "after",
@@ -185,40 +246,52 @@
       displayItem: "displayItem",
       noResults: "noResults"
     };
-
-    function setMessages (messagesObj) {
-      if (!!messagesObj.noResults) {
-        results.setMessage("noResults", messagesObj.noResults);
+    function bindToSetMessages (input, results) {
+      return function setMessages (messagesObj) {
+        if (!!messagesObj.noResults) {
+          results.setMessage("noResults", messagesObj.noResults);
+        }
+        if (!!messagesObj.searchFailure) {
+          results.setMessage("searchFailure", messagesObj.searchFailure);
+        }
+        return input;
       }
-      if (!!messagesObj.searchFailure) {
-        results.setMessage("searchFailure", messagesObj.searchFailure);
+    }
+    function bindToCreateSetCallback (input, results) {
+      return function createSetCallback (cbName) {
+        return function setCallback (fn) {
+          results.setCallback(cbName, fn);
+          return input;
+        }
       }
     }
 
-    function createSetCallback (cbName) {
-      return function (fn) {
-        api.setCallback(cbName, fn);
-      }
-    }
+    function createContext (input, urlOpts, containerId) {
+      var container, results, api, bar;
 
-    function setNewAttributes (el) {
-      el.messages = setMessages;
-      el.before = createSetCallback(names.before);
-      el.after = createSetCallback(names.after);
-      el.success = createSetCallback(names.success);
-      el.failure = createSetCallback(names.failure);
-      el.displayItem = createSetCallback(names.displayItem);
-      el.noResults = createSetCallback(names.noResults);
+      function setNewAttributes () {
+        var createSetCallback = bindToCreateSetCallback(input, results);
+        input.messages = bindToSetMessages(input, results);
+        input.before = createSetCallback(names.before);
+        input.after = createSetCallback(names.after);
+        input.success = createSetCallback(names.success);
+        input.failure = createSetCallback(names.failure);
+        input.displayItem = createSetCallback(names.displayItem);
+        input.noResults = createSetCallback(names.noResults);
+      }
+
+      container = document.getElementById(containerId);
+      results = searchResults.new(container);
+      api     = searchAPI.new(urlOpts, results);
+      bar     = searchBar.new(input, api);
+      setNewAttributes();
+      bar.init();
+      return input;
     }
 
     return function (urlOpts, containerId) {
       checks(this, urlOpts, containerId);
-      container = document.getElementById(containerId);
-      setNewAttributes(this);
-      results = searchResults.new(container);
-      api = searchAPI.new(urlOpts, results);
-      bar = searchBar.new(this, api);
-      return this;
+      return createContext(this, urlOpts, containerId);
     }
   })();
 

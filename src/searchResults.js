@@ -1,28 +1,64 @@
 "use strict";
 
-var searchResults = (function ($, window, document, undefined) {
-  function initializeObject (selectors, messages) {
-    var container   = $(selectors.container),
-        loadDisplay = $(selectors.loadDisplay);
+var searchResults = (function () {
+  var defaultMessages = {
+    noResults: "No results were found.",
+    searchFailure: "Sorry, something went wrong."
+  };
+  var classNames = {
+    failure: "ssb-failure",
+    item: "ssb-item"
+  };
+  function createElement (type, className, text) {
+    var el = document.createElement(type);
+    el.className = className;
+    !!text && (el.textContent = text);
+    return el;
+  }
+  function itemElement (item) {
+    var el = createElement("P", classNames.item);
+    var linkStr = "<a href='" + item.url + "'>" + item.title + "</a>";
+    el.innerHTML = linkStr;
+    return el;
+  }
 
-    function createMessageAdder (message, messageClass) {
-      return function () {
-        var msg = $("<p></p>").addClass(messageClass).text(message);
-        container.append(msg);
+  function initializeObject (container) {
+    var noResultsEl = createElement("P", classNames.failure, defaultMessages.noResults),
+        searchFailureEl = createElement("P", classNames.failure, defaultMessages.searchFailure);
+
+    function setCallback (name, fn) {
+      if (name === "before" || name === "after" || name === "noResults") {
+        _this[name] = function () {
+          return fn.call(null, container);
+        }
+      }
+      else if (name === "success" || name === "failure") {
+        _this[name] = function (xhr) {
+          return fn.call(null, container, xhr);
+        }
+      }
+      else if (name === "displayItem") {
+        _this[name] = fn;
       }
     }
 
-    var _this = Object.create({
+    function setMessage (name, message) {
+      var el;
+      if (name === "noResults") {
+        el = noResultsEl;
+      } else if (name === "searchFailure") {
+        el = searchFailureEl;
+      }
+      el.textContent = message;
+    }
+
+    var _this = window.Object.create({
       clear: function () {
-        container.empty();
-      },
-      toggleLoadDisplay: function () {
-        loadDisplay.toggle();
+        container.innerHTML = "";
       },
       displayResults: function (data) {
-        // expect 'data' to have 'results' array property
         if (data.results.length < 1) {
-          _this.displayNoResults();
+          _this.noResults();
         } else {
           _this.displayItems(data.results);
         }
@@ -31,36 +67,25 @@ var searchResults = (function ($, window, document, undefined) {
         items.forEach(_this.displayItem);
       },
       displayItem: function (item) {
-        var link = $("<a></a>").attr("href", item.url).text(item.title)
-        var p = $("<p></p>").append(link)
-        container.append(p)
+        container.appendChild(itemElement(item));
       },
-      displaySearchFailure: createMessageAdder(messages.searchFailure, messages.searchFailureClass),
-      displayNoResults: createMessageAdder(messages.noResults, messages.noResultsClass)
+      failure: function (xhr) {
+        window.console.warn(xhr);
+        container.appendChild(searchFailureEl);
+      },
+      noResults: function () {
+        container.appendChild(noResultsEl);
+      },
+      setCallback: setCallback,
+      setMessage: setMessage
     });
 
     return _this;
   }
 
-  function checkArgs (selectors, messages) {
-    if (!selectors || !messages) {
-      throw new Error("You must provide 'selectors' and 'messages' objects to the 'new' method");
-    }
-    if (!selectors.container || !selectors.loadDisplay) {
-      throw new Error("You must provide 'container' and 'loadDisplay' selectors in the 'selectors' object");
-    }
-    if (!messages.noResults || !messages.noResultsClass) {
-      throw new Error("You must provide a 'noResults' message and a corresponding 'noResultsClass' in the 'messages' object");
-    }
-    if (!messages.searchFailure || !messages.searchFailureClass) {
-      throw new Error("You must provide a 'searchFailure' message and a corresponding 'searchFailureclass' to the 'messages' object");
-    }
-  }
-
   return {
-    new: function (selectors, messages) {
-      checkArgs(selectors, messages);
-      return initializeObject(selectors, messages);
-    }
+    new: initializeObject
   }
-})(jQuery, window, document);
+})();
+
+  module.exports = searchResults;

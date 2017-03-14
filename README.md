@@ -2,7 +2,7 @@
 
 ### Summary
 
-A JavaScript module (and Liquid JSON file) that lets you quickly build out search functionality on a Shopify storefront.
+A JavaScript module (and Liquid JSON file) that lets you quickly build out search functionality on a Shopify storefront. There is a version of this available as a jQuery plugin, check [this branch](https://github.com/dunxtand/shopify-search-bar/tree/jquery) for more details.
 
 ### Motivation
 

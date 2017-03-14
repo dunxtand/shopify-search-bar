@@ -1,0 +1,28 @@
+{
+  "name": "shopify-search-bar",
+  "version": "1.0.0",
+  "description": "JS ES5 customizable search bar for Shopify storefronts",
+  "main": "index.js",
+  "directories": {
+    "example": "example",
+    "src": "src"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dunxtand/shopify-search-bar.git"
+  },
+  "keywords": [
+    "shopify",
+    "search",
+    "javascript",
+    "ajax",
+    "jquery"
+  ],
+  "author": "dunxtand",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dunxtand/shopify-search-bar/issues"
+  },
+  "homepage": "https://github.com/dunxtand/shopify-search-bar#readme"
+}

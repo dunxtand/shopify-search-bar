@@ -2,7 +2,7 @@
 
 ### Summary
 
-A jQuery plugin (and Liquid JSON file) that lets you quickly build out search functionality on a Shopify storefront.
+A jQuery plugin (and Liquid JSON file) that lets you quickly build out search functionality on a Shopify storefront. This is a jQuery version of the vanilla JS module available on (the master branch)[https://github.com/dunxtand/shopify-search-bar].
 
 ### Motivation
 
@@ -24,7 +24,7 @@ Copy ssb.min.js straight into a script tag, or to a file on your site and refere
 
 ### Configuration Requirements
 
-1. You must make a **liquid search template** that returns an object with at least a **results** property that contains an array. Each item in the array must at least have **title** and **url** properties. Copy the [example](https://github.com/dunxtand/shopify-search-bar/blob/master/example/search.example.liquid) and customize what kind of info you get about the returned items. Check Shopify's [documentation](https://help.shopify.com/themes/liquid/objects/search#search-results) for more about returned items.
+1. You must make a **liquid search template** that returns an object with at least a **results** property that contains an array. Each item in the array must at least have **title** and **url** properties. Copy the [example](https://github.com/dunxtand/shopify-search-bar/blob/jquery/example/search.example.liquid) and customize what kind of info you get about the returned items. Check Shopify's [documentation](https://help.shopify.com/themes/liquid/objects/search#search-results) for more about returned items.
 2. The **input** element you set as your search bar must be within a **form** element, and must be of type="**text**".
 
 ## Usage

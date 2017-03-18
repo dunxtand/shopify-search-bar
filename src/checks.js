@@ -39,6 +39,9 @@ var checks = (function () {
     if (typeof containerId !== "string") {
       err("containerId must be a string");
     }
+    if (!document.getElementById(containerId)) {
+      err("could not locate element with id: " + containerId);
+    }
   }
 
   return function (el, urlOpts, containerId) {

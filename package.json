@@ -1,6 +1,6 @@
 {
   "name": "shopify-search-bar",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Minimal, customizable search bar boilerplate for Shopify storefronts",
   "main": "index.js",
   "directories": {

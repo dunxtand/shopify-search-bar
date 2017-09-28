@@ -4,10 +4,7 @@ var stopWords = require("./stopWords");
 
 var searchAPI = (function () {
   function createUrl (urlOpts, query, shouldCleanQuery) {
-    console.log(query);
-    console.log(shouldCleanQuery);
     query = !!shouldCleanQuery ? cleanQuery(query) : query;
-    console.log(query);
     var searchSegment = "/search?",
         querySegment = "&q=" + query,
         allSegments = searchSegment + createUrlSegment(urlOpts) + querySegment;

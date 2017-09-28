@@ -44,7 +44,7 @@ input.shopifySearchBar(urlOpts, containerId);
 
 ##### urlOpts (object)
 
-* Must have a "**view**" property. This specifies the Liquid template to query; if this is set to "**example**", your search will query **search.example.liquid**, if it is set to "**blog**", it will query **search.blog.liquid**, etc. 
+* Must have a "**view**" property. This specifies the Liquid template to query; if this is set to "**example**", your search will query **search.example.liquid**, if it is set to "**blog**", it will query **search.blog.liquid**, etc.
 * Optionally can have a "**type**" property. This restricts the search to only that type of Shopify object. Options are ["**page**"](https://help.shopify.com/themes/liquid/objects/page), ["**product**"](https://help.shopify.com/themes/liquid/objects/product), and ["**article**""](https://help.shopify.com/themes/liquid/objects/article).
 
 ##### containerId (string)
@@ -152,12 +152,20 @@ input.noResults(function (container) {
 });
 ````
 
+#### #cleanQuery
+
+Choose whether or not to filter out common [stop words](https://en.wikipedia.org/wiki/Stop_words) from the search query. Set to false by default.
+
+````javascript
+input.cleanQuery(true);
+````
+
 #### Chaining
 
 All of the above methods can be called fluidly:
 
 ````javascript
-input.before(beforeFn).success(successFn).after(afterFn); // etc
+input.before(beforeFn).success(successFn).after(afterFn).cleanQuery(true); // etc
 ````
 
 ## License

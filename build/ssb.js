@@ -87,12 +87,23 @@
     }
   })();
 
+  var stopWords = ["a","about","above","across","after","again","against","all","almost","alone","along","already","also","although","always","among","an","and","another","any","anybody","anyone","anything","anywhere","are","area","areas","around","as","ask","asked","asking","asks","at","away","b","back","backed","backing","backs","be","became","because","become","becomes","been","before","began","behind","being","beings","best","better","between","big","both","but","by","c","came","can","cannot","case","cases","certain","certainly","clear","clearly","come","could","d","did","differ","different","differently","do","does","done","down","downed","downing","downs","during","e","each","early","either","end","ended","ending","ends","enough","even","evenly","ever","every","everybody","everyone","everything","everywhere","f","face","faces","fact","facts","far","felt","few","find","finds","first","for","four","from","full","fully","further","furthered","furthering","furthers","g","gave","general","generally","get","gets","give","given","gives","go","going","good","goods","got","great","greater","greatest","group","grouped","grouping","groups","h","had","has","have","having","he","her","here","herself","high","high","high","higher","highest","him","himself","his","how","however","i","if","important","in","interest","interested","interesting","interests","into","is","it","its","itself","j","just","k","keep","keeps","kind","knew","know","known","knows","l","large","largely","last","later","latest","least","less","let","lets","like","likely","longer","longest","m","make","making","man","may","me","member","members","men","might","more","most","mostly","mr","mrs","much","must","my","myself","n","necessary","need","needed","needing","needs","never","new","new","newer","newest","next","no","nobody","non","noone","not","nothing","now","nowhere","number","numbers","o","of","off","often","old","older","oldest","on","once","one","only","open","opened","opening","opens","or","other","others","our","out","over","p","part","parted","parting","parts","per","perhaps","place","places","point","pointed","pointing","points","possible","present","presented","presenting","presents","problem","problems","put","puts","q","quite","r","rather","really","right","right","room","rooms","s","said","same","saw","say","says","second","seconds","see","seem","seemed","seeming","seems","sees","several","shall","she","should","show","showed","showing","shows","side","sides","since","small","smaller","smallest","so","some","somebody","someone","something","somewhere","state","states","still","still","such","sure","t","take","taken","than","that","the","their","them","then","there","therefore","these","they","thing","things","think","thinks","this","those","though","thought","thoughts","three","through","thus","to","today","together","too","took","toward","turn","turned","turning","turns","two","u","under","until","up","upon","us","use","used","uses","v","very","w","want","wanted","wanting","wants","was","way","ways","we","well","wells","went","were","what","when","whether","which","while","who","whole","whose","why","will","with","within","without","work","worked","working","works","would","x","y","year","years","yet","you","young","younger","youngest","your","yours","z"];
   var searchAPI = (function () {
-    function createUrl (urlOpts, query) {
+    function createUrl (urlOpts, query, shouldCleanQuery) {
+      query = !!shouldCleanQuery ? cleanQuery(query) : query;
       var searchSegment = "/search?",
           querySegment = "&q=" + query,
           allSegments = searchSegment + createUrlSegment(urlOpts) + querySegment;
       return window.location.origin + allSegments;
+    }
+
+    function cleanQuery (originalQuery) {
+      return originalQuery
+      .split("+")
+      .filter(function (term) {
+        return stopWords.indexOf(term) === -1;
+      })
+      .join("+");
     }
 
     function createUrlSegment (urlOpts) {
@@ -108,11 +119,16 @@
 
     function createInvoke (results) {
       return function (fnName) {
-        !!results[fnName] && results[fnName]();
+        !!results[fnName] && results[fnName](arguments[1]);
       }
     }
 
     function initializeObject (urlOpts, results) {
+      var shouldCleanQuery = false;
+      function setCleanQuery (bool) {
+        shouldCleanQuery = bool;
+      }
+
       var invoke = createInvoke(results);
 
       function getJSON (url) {
@@ -122,7 +138,7 @@
           if (xhr.readyState === 4) {
             if (xhr.status === 200) {
               var data = window.JSON.parse(xhr.responseText);
-              invoke("success");
+              invoke("success", xhr);
               results.displayResults(data);
               invoke("after");
             } else {
@@ -139,7 +155,7 @@
       }
 
       function search (query) {
-        var url = createUrl(urlOpts, query);
+        var url = createUrl(urlOpts, query, shouldCleanQuery);
         results.clear();
         invoke("before");
         getJSON(url);
@@ -147,6 +163,7 @@
 
       return {
         search: search,
+        setCleanQuery: setCleanQuery
       }
     }
 
@@ -265,6 +282,13 @@
         }
       }
     }
+    function createCleanQuery (input, api) {
+      return function (bool) {
+        if (bool !== true || bool !== false) return Error("Must pass in a boolean value");
+        api.setCleanQuery(bool);
+        return input;
+      }
+    }
 
     function createContext (input, urlOpts, containerId) {
       var container, results, api, bar;
@@ -279,6 +303,7 @@
         .forEach(function (name) {
           input[name] = createSetCallback(name);
         });
+        input.cleanQuery = createCleanQuery(input, api);
       }
 
       container = document.getElementById(containerId);

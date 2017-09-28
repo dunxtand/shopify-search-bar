@@ -34,7 +34,7 @@ var extension = (function () {
   }
   function createCleanQuery (input, api) {
     return function (bool) {
-      if (bool !== true || bool !== false) return Error("Must pass in a boolean value");
+      if (typeof bool !== "boolean") return Error("Must pass in a boolean value");
       api.setCleanQuery(bool);
       return input;
     }

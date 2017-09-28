@@ -12,12 +12,12 @@ var searchAPI = (function () {
   }
 
   function cleanQuery (originalQuery) {
-    return originalQuery
-    .split("+")
+    return originalQuery.toLowerCase()
+    .split(" ")
     .filter(function (term) {
       return stopWords.indexOf(term) === -1;
     })
-    .join("+");
+    .join(" ");
   }
 
   function createUrlSegment (urlOpts) {
@@ -40,7 +40,7 @@ var searchAPI = (function () {
   function initializeObject (urlOpts, results) {
     var shouldCleanQuery = false;
     function setCleanQuery (bool) {
-      shouldCleanQuery = bool;
+      return shouldCleanQuery = bool;
     }
 
     var invoke = createInvoke(results);

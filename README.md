@@ -148,12 +148,20 @@ input.noResults(function (container) {
 });
 ````
 
+#### #cleanQuery
+
+Choose whether or not to filter out common [stop words](https://en.wikipedia.org/wiki/Stop_words) from the search query. Set to false by default.
+
+````javascript
+input.cleanQuery(true);
+````
+
 #### Chaining
 
 All of the above methods can be called fluidly:
 
 ````javascript
-input.before(beforeFn).success(successFn).after(afterFn); // etc
+input.before(beforeFn).success(successFn).after(afterFn).cleanQuery(true); // etc
 ````
 
 ## License

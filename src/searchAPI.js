@@ -1,11 +1,21 @@
 "use strict";
 
+var stopWords = require("./stopWords");
+
 var searchAPI = (function () {
-  function createUrl (urlOpts, query) {
+  function createUrl (urlOpts, query, shouldCleanQuery) {
+    query = !!shouldCleanQuery ? cleanQuery(query) : query;
     var searchSegment = "/search?",
         querySegment = "&q=" + query,
         allSegments = searchSegment + createUrlSegment(urlOpts) + querySegment;
     return window.location.origin + allSegments;
+  }
+  function cleanQuery (originalQuery) {
+    return originalQuery
+    .split("+")
+    .filter(function (term) {
+      return stopWords.indexOf(term) === -1;
+    });
   }
 
   function createUrlSegment (urlOpts) {
@@ -34,6 +44,11 @@ var searchAPI = (function () {
   }
 
   function initializeObject (urlOpts, results) {
+    var shouldCleanQuery = false;
+    function setCleanQuery (bool) {
+      return shouldCleanQuery = bool;
+    }
+
     var invoke = createInvoke(results);
 
     function search (query) {
@@ -45,7 +60,8 @@ var searchAPI = (function () {
     }
 
     return {
-      search: search
+      search: search,
+      setCleanQuery: setCleanQuery
     }
   }
 

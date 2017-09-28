@@ -32,6 +32,13 @@ var extension = (function () {
       }
     }
   }
+  function createCleanQuery (input, api) {
+    return function (bool) {
+      if (bool !== true || bool !== false) return Error("Must pass in a boolean value");
+      api.setCleanQuery(bool);
+      return input;
+    }
+  }
 
   function createContext (input, urlOpts, containerId) {
     var container, results, api, bar;
@@ -46,6 +53,7 @@ var extension = (function () {
       .forEach(function (name) {
         input[name] = createSetCallback(name);
       });
+      input.cleanQuery = createCleanQuery(input, api);
     }
 
     container = $(containerId);
